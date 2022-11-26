@@ -5,8 +5,140 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UDPChat"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Name="mainWindow" Height="450" Width="900">
 
+    <Window.Resources>
+        <Style x:Key="Screen">
+            <Style.Setters>
+                <Setter Property="Border.Visibility" Value="Hidden" />
+                <Setter Property="Border.Background" Value="#FF1F2844" />
+            </Style.Setters>
+        </Style>
+
+
+        <Style x:Key="TextBlockBase">
+            <Style.Setters>
+                <Setter Property="TextBlock.Background" Value="#FF2A2C3A" />
+                <Setter Property="TextBlock.Foreground" Value="WhiteSmoke" />
+                <Setter Property="TextBlock.Padding" Value="15,5,15,2"/>
+                <Setter Property="TextBlock.HorizontalAlignment" Value="Left" />
+            </Style.Setters>
+        </Style>
+
+
+        <Style x:Key="HeaderBorder">
+            <Style.Setters>
+                <Setter Property="Border.Background" Value="#222" />
+            </Style.Setters>
+        </Style>
+
+        <Style x:Key="ContactList">
+            <Style.Setters>
+                <Setter Property="ListBox.BorderThickness" Value="0"/>
+                <Setter Property="TextBox.Background" Value="#FF2A2C3A" />
+                <Setter Property="TextBox.Foreground" Value="WhiteSmoke" />
+                <Setter Property="TextBox.HorizontalAlignment" Value="Left" />
+                <Setter Property="TextBox.Width" Value="300" />
+            </Style.Setters>
+        </Style>
+
+        
+        <Style x:Key="MessegeList">
+            <Style.Setters>
+                <Setter Property="ListBox.BorderThickness" Value="0"/>
+                <Setter Property="TextBox.Background" Value="#FF1F2844" />
+                <Setter Property="TextBox.Foreground" Value="WhiteSmoke" />
+                <Setter Property="TextBox.HorizontalAlignment" Value="Left" />
+            </Style.Setters>
+        </Style>
+
+
+        <Style x:Key="MessageBorder">
+            <Style.Setters>
+                <Setter Property="Border.Background" Value="#FF2A2C3A" />
+                <Setter Property="Border.CornerRadius" Value="13" />
+                <Setter Property="Border.MinWidth" Value="100" />
+                <Setter Property="Border.MaxWidth" Value="300" />
+                <Setter Property="Border.Padding" Value="2" />
+            </Style.Setters>
+        </Style>
+
+
+        <Style x:Key="MessageText" BasedOn="{StaticResource TextBlockBase}">
+            <Style.Setters>
+                <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                <Setter Property="TextBlock.Margin" Value="0" />
+            </Style.Setters>
+        </Style>
+
+
+        <Style x:Key="MessageDate" BasedOn="{StaticResource TextBlockBase}">
+            <Style.Setters>
+                <Setter Property="TextBlock.HorizontalAlignment" Value="Right" />
+                <Setter Property="TextBlock.FontSize" Value="8" />
+                <Setter Property="TextBlock.Margin" Value="0" />
+            </Style.Setters>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Border Name="ContactsScreen" Style="{StaticResource Screen}" Visibility="Visible">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="#FF2A2C3A" BorderThickness="2" Visibility="Visible"/>
+                <Border Grid.Row="0" Grid.Column="0" Background="#FF2A2C3A" BorderBrush="Black" BorderThickness="2"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="Chats" Foreground="WhiteSmoke" FontSize="24" />
+                <Label Grid.Row="0" Grid.Column="2" Foreground="WhiteSmoke" FontSize="24" />
+
+                <Border Grid.Column="0" Grid.Row="2">
+                    <ListBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="True"  
+   					 Style="{StaticResource ContactList}" x:Name="ContactsList" SelectionChanged="ContactsList_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <ListBoxItem>
+                                    <DockPanel HorizontalAlignment="Left" LastChildFill="True" Width="250">
+                                        <Border Width="50" Height="50" BorderBrush="Black" BorderThickness="1" Margin="5">
+                                            <Image Source=".."/>
+                                        </Border>
+                                        <TextBlock Text="{Binding TextString}"/>
+                                        <TextBlock HorizontalAlignment="Right" Text="{Binding TimeString}"/>
+                                    </DockPanel>
+                                </ListBoxItem>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+
+
+                <Border Grid.Row="1" Grid.Column="1">
+                    <ListBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
+   					 Style="{StaticResource MessegeList}" Name="MessageList" Focusable="False"
+   					 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <ListBoxItem>
+                                    <Border Style="{StaticResource MessageBorder}" HorizontalAlignment="{Binding Alignment}">
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Text="{Binding Text}" Style="{StaticResource MessageText}"/>
+                                            <TextBlock Text="{Binding TimeString}" Style="{StaticResource MessageDate}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </ListBoxItem>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
+        
 </Window>
