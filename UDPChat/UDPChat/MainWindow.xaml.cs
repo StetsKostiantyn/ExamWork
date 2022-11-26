@@ -39,7 +39,7 @@ namespace UDPChat
             {
                 ContactsList.Items.Add(item);
             }
-            Messeges.Add(new Messege() { Text = "hi\ndiahgd", Time = DateTime.Now, Alignment = HorizontalAlignment.Left });
+            Messeges.Add(new Messege() { Text = "hi\nhow are you", Time = DateTime.Now, Alignment = HorizontalAlignment.Left });
             Messeges.Add(new Messege() { Text = "add", Time = DateTime.Now, Alignment = HorizontalAlignment.Right });
             foreach (var item in Messeges)
             {
@@ -49,47 +49,7 @@ namespace UDPChat
 
         private void ContactsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //Метод вызывается, когда меняется индекс выделенного элемента
-            //При выделении элемент списка будет подсвечиваться
-            //Чтобы убрать это, мы будем менять индекс на -1
-            //Чтобы метод не срабатывал повторно, мы проверяем, чтобы индекс был больше или равен 0
-            if (ContactsList.SelectedIndex >= 0)
-            {
-                //Тут будет код загрузки сообщений из чата
 
-                //Сбрасываем индекс
-                ContactsList.SelectedIndex = -1;
-
-                //Open(ChatScreen);
-            }
-        }
-
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
-        {
-            //Пока используем тестовые данные
-            //if (LoginBox.Text == "admin" && PasswordBox.Password == "12345")
-            //{
-            //    //Если логин и пароль верные, то переходим на другой экран
-            //    Open(ContactsScreen);
-            //}
-            //else
-            //{
-            //    //Иначе выводим сообщение об ошибке авторизации
-            //    //LoginMessageBlock.Text = "Wrong login or password!";
-            //    //LoginMessageBlock.Visibility = Visibility.Visible;
-            //}
-        }
-
-        //Метод для открытия другого экрана
-        private void Open(Border screen)
-        {
-            //Делаем все экраны невидимыми
-            //LoginScreen.Visibility = Visibility.Hidden;
-            //ContactsScreen.Visibility = Visibility.Hidden;
-            //ChatScreen.Visibility = Visibility.Hidden;
-
-            //Делаем видимым необходимый экран
-            screen.Visibility = Visibility.Visible;
         }
 
         public class User
@@ -139,46 +99,5 @@ namespace UDPChat
                 get { return Time.ToString("HH:mm"); }
             }
         }
-
-
-        private void ListBoxItem_Selected(object sender, RoutedEventArgs e)
-        {
-            if (ContactsList.SelectedIndex >= 0)
-            {
-                //Тут будет код загрузки сообщений из чата
-
-                //Сбрасываем индекс
-                ContactsList.SelectedIndex = -1;
-
-                //Open(ChatScreen);
-            }
-        }
-
-        //private void mainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-        //{
-        //    usersScroll.Width = mainWindow.Width / 3; 
-        //}
-
-        //private void ButtonShowHide_Click(object sender, RoutedEventArgs e)
-        //{
-        //    DoubleAnimation daScrl = new DoubleAnimation
-        //    {
-        //        Duration = TimeSpan.FromMilliseconds(500),
-        //        FillBehavior = FillBehavior.HoldEnd
-        //    };
-
-        //    if (usersScroll.Width > 0)
-        //    {
-        //        daScrl.To = 90;
-        //    }
-        //    else
-        //    {
-        //        daScrl.From = 90;
-        //        daScrl.To = mainWindow.Width / 3;
-        //    }
-
-        //    usersScroll.BeginAnimation(ScrollViewer.WidthProperty, daScrl);
-        //    e.Handled = true;
-        //}
     }
 }
