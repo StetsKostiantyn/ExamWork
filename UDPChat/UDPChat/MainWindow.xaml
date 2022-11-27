@@ -11,31 +11,24 @@
         <Style x:Key="Screen">
             <Style.Setters>
                 <Setter Property="Border.Visibility" Value="Hidden" />
-                <Setter Property="Border.Background" Value="#FF1F2844" />
+                <Setter Property="Border.Background" Value="#FF212737" />
             </Style.Setters>
         </Style>
 
 
         <Style x:Key="TextBlockBase">
             <Style.Setters>
-                <Setter Property="TextBlock.Background" Value="#FF2A2C3A" />
+                <Setter Property="TextBlock.Background" Value="#FF212737" />
                 <Setter Property="TextBlock.Foreground" Value="WhiteSmoke" />
                 <Setter Property="TextBlock.Padding" Value="15,5,15,2"/>
                 <Setter Property="TextBlock.HorizontalAlignment" Value="Left" />
             </Style.Setters>
         </Style>
 
-
-        <Style x:Key="HeaderBorder">
-            <Style.Setters>
-                <Setter Property="Border.Background" Value="#222" />
-            </Style.Setters>
-        </Style>
-
         <Style x:Key="ContactList">
             <Style.Setters>
                 <Setter Property="ListBox.BorderThickness" Value="0"/>
-                <Setter Property="TextBox.Background" Value="#FF2A2C3A" />
+                <Setter Property="TextBox.Background" Value="#FF212737" />
                 <Setter Property="TextBox.Foreground" Value="WhiteSmoke" />
                 <Setter Property="TextBox.HorizontalAlignment" Value="Left" />
                 <Setter Property="TextBox.Width" Value="300" />
@@ -46,7 +39,7 @@
         <Style x:Key="MessegeList">
             <Style.Setters>
                 <Setter Property="ListBox.BorderThickness" Value="0"/>
-                <Setter Property="TextBox.Background" Value="#FF1F2844" />
+                <Setter Property="TextBox.Background" Value="#FF636A7B" />
                 <Setter Property="TextBox.Foreground" Value="WhiteSmoke" />
                 <Setter Property="TextBox.HorizontalAlignment" Value="Left" />
             </Style.Setters>
@@ -55,7 +48,7 @@
 
         <Style x:Key="MessageBorder">
             <Style.Setters>
-                <Setter Property="Border.Background" Value="#FF2A2C3A" />
+                <Setter Property="Border.Background" Value="#FF212737" />
                 <Setter Property="Border.CornerRadius" Value="13" />
                 <Setter Property="Border.MinWidth" Value="100" />
                 <Setter Property="Border.MaxWidth" Value="300" />
@@ -88,20 +81,22 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50" />
                     <RowDefinition />
+                    <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="300" />
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="#FF2A2C3A" BorderThickness="2" Visibility="Visible"/>
-                <Border Grid.Row="0" Grid.Column="0" Background="#FF2A2C3A" BorderBrush="Black" BorderThickness="2"/>
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="Black" BorderThickness="1" Visibility="Visible"/>
+                <Border Grid.Row="0" Grid.Column="0" Background="#FF212737" BorderBrush="Black" BorderThickness="1"/>
+                <Border x:Name="MessegeBorder" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#FF636A7B" BorderBrush="Black" BorderThickness="1"/>
                 <Label Grid.Row="0" Grid.Column="0" Content="Chats" Foreground="WhiteSmoke" FontSize="24" />
                 <Label Grid.Row="0" Grid.Column="2" Foreground="WhiteSmoke" FontSize="24" />
 
-                <Border Grid.Column="0" Grid.Row="2">
+                <Border Grid.Column="0" Grid.Row="1">
                     <ListBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="True"  
-   					 Style="{StaticResource ContactList}" x:Name="ContactsList" SelectionChanged="ContactsList_SelectionChanged">
+   					 Style="{StaticResource ContactList}" x:Name="ContactsList" SelectionChanged="ContactsList_SelectionChanged" BorderBrush="Black" BorderThickness="1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <ListBoxItem>
@@ -120,22 +115,39 @@
 
 
                 <Border Grid.Row="1" Grid.Column="1">
-                    <ListBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
-   					 Style="{StaticResource MessegeList}" Name="MessageList" Focusable="False"
-   					 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <ListBoxItem>
-                                    <Border Style="{StaticResource MessageBorder}" HorizontalAlignment="{Binding Alignment}">
-                                        <StackPanel Orientation="Vertical">
-                                            <TextBlock Text="{Binding Text}" Style="{StaticResource MessageText}"/>
-                                            <TextBlock Text="{Binding TimeString}" Style="{StaticResource MessageDate}"/>
-                                        </StackPanel>
-                                    </Border>
-                                </ListBoxItem>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <ScrollViewer x:Name="scrollMessege" >
+                        <ListBox Style="{StaticResource MessegeList}" Name="MessageList" Focusable="False"
+   					             HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Bottom" BorderBrush="Black" BorderThickness="1">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <ListBoxItem>
+                                        <Border Style="{StaticResource MessageBorder}" HorizontalAlignment="{Binding Alignment}">
+                                            <StackPanel Orientation="Vertical">
+                                                <TextBlock Text="{Binding Text}" Style="{StaticResource MessageText}"/>
+                                                <TextBlock Text="{Binding TimeString}" Style="{StaticResource MessageDate}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ListBoxItem>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </Border>
+
+
+                <Border Grid.Row="2" Grid.Column="1" Background="#FF212737">
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Name="MessageBox" Grid.Column="0" Grid.Row="2" FontSize="24"/>
+
+                        <Button Background="#FF404658" Grid.Column="1" Name="SendButton" Content="→" Click="SendButton_Click"/>
+
+                    </Grid>
                 </Border>
             </Grid>
         </Border>
