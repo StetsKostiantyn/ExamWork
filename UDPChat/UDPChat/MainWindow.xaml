@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UDPChat"
         mc:Ignorable="d"
-        Title="MainWindow" Name="mainWindow" Height="450" Width="900">
+        Title="MainWindow" Name="mainWindow" Height="450" Width="900" KeyDown="mainWindow_KeyDown">
 
     <Window.Resources>
         <Style x:Key="Screen">

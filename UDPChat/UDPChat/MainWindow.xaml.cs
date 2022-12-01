@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -28,13 +30,22 @@ namespace UDPChat
         List<Messege> Messeges = new List<Messege>();
         UdpClient udpClient = new UdpClient();
         List<UdpClient> receiveClients = new List<UdpClient>();
+        AppDbContext context = CreateDbContext();
+
         public MainWindow()
         {
             InitializeComponent();
 
+            context.Database.EnsureCreated();
+
             IPAddress[] iPAddresses = Dns.GetHostAddresses(Dns.GetHostName());
             foreach (IPAddress ip4 in iPAddresses.Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
             {
+                if (context.Set<Users>().Where(x => x.Address == ip4.ToString()) == null)
+                {
+                    context.Set<Users>().Add(new Users { Address = ip4.ToString() });
+                }
+                
                 users.Add(new User(ip4));
                 receiveClients.Add(new UdpClient(new IPEndPoint(ip4, 1024)));
             }
@@ -55,6 +66,25 @@ namespace UDPChat
             SendButton.Visibility = Visibility.Hidden;
         }
 
+        private static AppDbContext CreateDbContext()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
+            {
+                DataSource = "localhost",
+                InitialCatalog = "UDPChat",
+                IntegratedSecurity = true,
+                MultipleActiveResultSets = true,
+                Encrypt = false
+            };
+
+            String connStr = builder.ConnectionString;
+
+            DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
+            DbContextOptions options = optionsBuilder.UseSqlServer(connStr).Options;
+
+            return new AppDbContext(options);
+        }
+
         private void ContactsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             MessageList.Items.Clear();
@@ -62,6 +92,7 @@ namespace UDPChat
             SendButton.Visibility = Visibility.Visible;
             receiveClients[ContactsList.SelectedIndex].BeginReceive(ReceiveCallback, receiveClients[ContactsList.SelectedIndex]);
         }
+
         private void ReceiveCallback(IAsyncResult ar)
         {
             UdpClient client = ar.AsyncState as UdpClient;
@@ -88,6 +119,32 @@ namespace UDPChat
                 IPEndPoint ep = new IPEndPoint(ip, 1024);
                 udpClient.Send(buffer, buffer.Length, ep);
                 MessageBox.Clear();
+            }
+        }
+
+        public static IPAddress GetMyIPAddress()
+        {
+            IPAddress[] hostAddresses = Dns.GetHostAddresses("");
+
+            foreach (IPAddress hostAddress in hostAddresses)
+            {
+                if (hostAddress.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(hostAddress) && !hostAddress.ToString().StartsWith("169.254."))
+                    return hostAddress;
+            }
+            return null;
+        }
+
+        private void mainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SendButton_Click(this, RoutedEventArgs.Empty as RoutedEventArgs);
+            }
+            if (e.Key == Key.Escape)
+            {
+                MessageList.Items.Clear();
+                MessageBox.Visibility = Visibility.Hidden;
+                SendButton.Visibility = Visibility.Hidden;
             }
         }
     }
