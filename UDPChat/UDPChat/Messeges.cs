@@ -21,13 +21,14 @@ namespace UDPChat
         [Column("time")]/////////////////////////
         public DateTime Time { get; set; }
 
-        [Column("sourceUserId")]
-        public int SourceUserId { get; set; }
+        [Column("senderId")]
+        public int SenderId { get; set; }
 
-        [Column("destUserId")]
-        public int DestUserId { get; set; }
+        [Column("receiverId")]
+        public int ReceiverId { get; set; }
 
 
-        public Users SourceUser { get; set; }
+        public Users Sender { get; set; }
+        public Users Receiver { get; set; }
     }
 }

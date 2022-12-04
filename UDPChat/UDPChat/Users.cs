@@ -24,6 +24,7 @@ namespace UDPChat
         [Column("address")]
         public string Address { get; set; }
 
-        public List<Messeges> Messeges { get; set; }
+        public List<Messeges> MessegesSent { get; set; }
+        public List<Messeges> MessegesReceived { get; set; }
     }
 }

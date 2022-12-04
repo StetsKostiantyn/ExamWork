@@ -20,10 +20,16 @@ namespace UDPChat
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Messeges>()
-                .HasOne(x => x.SourceUser)
-                .WithMany(x => x.Messeges)
-                .HasForeignKey(x => x.SourceUserId)
-                .HasPrincipalKey(x => x.Id);      
+                .HasOne(p => p.Receiver)
+                .WithMany(t => t.MessegesReceived)
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Messeges>()
+                .HasOne(p => p.Sender)
+                .WithMany(t => t.MessegesSent)
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }

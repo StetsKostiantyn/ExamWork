@@ -12,7 +12,7 @@ namespace UDPChat
             public IPAddress Address { get; set; }
             public DateTime Time { get; set; }
 
-            public string TextString { get { return $"{Name}\n\n{Address.ToString()}"; } }
+            public string TextString { get { return $"{Name}\n{Address.ToString()}\n{Text}"; } }
             public string TimeString
             {
                 get
@@ -33,12 +33,6 @@ namespace UDPChat
                         }
                     }
                 }
-            }
-
-            public User(IPAddress address, string name = "unknown")
-            {
-                Address = address;
-                Name = name;
             }
         }
     }

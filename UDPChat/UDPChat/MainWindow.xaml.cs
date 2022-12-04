@@ -18,6 +18,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static UDPChat.MainWindow;
 
 namespace UDPChat
 {
@@ -26,10 +27,15 @@ namespace UDPChat
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<User> users = new List<User>();
-        List<Messege> Messeges = new List<Messege>();
         UdpClient udpClient = new UdpClient();
+
+        List<User> users = new List<User>();
+        List<Messege> messeges = new List<Messege>();
+
+        IPAddress myip = GetMyIPAddress();
+        List<IPAddress> availableIp = new List<IPAddress>();
         List<UdpClient> receiveClients = new List<UdpClient>();
+
         AppDbContext context = CreateDbContext();
 
         public MainWindow()
@@ -41,27 +47,24 @@ namespace UDPChat
             IPAddress[] iPAddresses = Dns.GetHostAddresses(Dns.GetHostName());
             foreach (IPAddress ip4 in iPAddresses.Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
             {
-                if (context.Set<Users>().Where(x => x.Address == ip4.ToString()) == null)
+                if (context.Set<Users>().FirstOrDefault(x => x.Address == ip4.ToString()) == null)
                 {
-                    context.Set<Users>().Add(new Users { Address = ip4.ToString() });
+                    context.Set<Users>().Add(new Users { Address = ip4.ToString(), Name = "unknown" });
                 }
-                
-                users.Add(new User(ip4));
+                availableIp.Add(ip4);
                 receiveClients.Add(new UdpClient(new IPEndPoint(ip4, 1024)));
             }
-            users.Add(new User(IPAddress.Parse("127.0.0.1")));
+            if (context.Set<Users>().FirstOrDefault(x => x.Address == "127.0.0.1") == null)
+            {
+                context.Set<Users>().Add(new Users { Address = "127.0.0.1", Name = "telnet" });
+            }
+            
+            context.SaveChanges();
+
+            availableIp.Add(IPAddress.Parse("127.0.0.1"));
             receiveClients.Add(new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1024)));
-
-            foreach (var item in users)
-            {
-                ContactsList.Items.Add(item);
-            }
-
-            scrollMessege.ScrollToEnd();
-            foreach (var item in Messeges)
-            {
-                MessageList.Items.Add(item);
-            }
+            FillContactsList();
+            
             MessageBox.Visibility = Visibility.Hidden;
             SendButton.Visibility = Visibility.Hidden;
         }
@@ -85,12 +88,72 @@ namespace UDPChat
             return new AppDbContext(options);
         }
 
-        private void ContactsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        public void FillContactsList()
+        {
+            foreach (var item in context.Set<Users>())
+            {
+                if (availableIp.Contains(IPAddress.Parse(item.Address)))
+                {
+                    User user;
+                    if (context.Set<Messeges>().OrderBy(x => x.Time).LastOrDefault(x => x.Sender.Address == myip.Address.ToString() || x.Receiver.Address == myip.Address.ToString() || x.Sender.Address == item.Address || x.Receiver.Address == item.Address) != null)
+                    {
+                        user = new User { Address = IPAddress.Parse(item.Address), Name = item.Name, Time = context.Set<Messeges>().OrderBy(x => x.Time).LastOrDefault(x => x.Sender.Address == myip.Address.ToString() || x.Receiver.Address == myip.Address.ToString() || x.Sender.Address == item.Address || x.Receiver.Address == item.Address).Time, Text = context.Set<Messeges>().OrderBy(x => x.Time).LastOrDefault(x => x.Sender.Address == myip.Address.ToString() || x.Receiver.Address == myip.Address.ToString() || x.Sender.Address == item.Address || x.Receiver.Address == item.Address).Text };
+                    }
+                    else
+                    {
+                        user = new User { Address = IPAddress.Parse(item.Address), Name = item.Name, Time = item.Time, Text = "" };
+                    }
+                    if (users.Count != availableIp.Count)
+                    {
+                        users.Add(user);
+                    }
+                }
+            }
+            //ContactsList.Items.Clear();
+
+            if (ContactsList.Items.Count != availableIp.Count)
+            {
+                foreach (var item in users)
+                {
+                    ContactsList.Items.Add(item);
+                }
+            }
+        }
+        public void FillMessageList(string chatterIp)
         {
             MessageList.Items.Clear();
-            MessageBox.Visibility = Visibility.Visible;
-            SendButton.Visibility = Visibility.Visible;
-            receiveClients[ContactsList.SelectedIndex].BeginReceive(ReceiveCallback, receiveClients[ContactsList.SelectedIndex]);
+            messeges.Clear();
+            foreach (var item in context.Set<Messeges>().Where(x => (x.Sender.Address == myip.ToString() && x.Receiver.Address == chatterIp) || (x.Sender.Address == chatterIp && x.Receiver.Address == myip.ToString())).OrderBy(x => x.Time))
+            {
+                Messege messege;
+                if (item.Sender.Address == myip.ToString())
+                {
+                    messege = new Messege { Text = item.Text, Time = item.Time, Alignment = HorizontalAlignment.Right };
+                }
+                else
+                {
+                    messege = new Messege { Text = item.Text, Time = item.Time, Alignment = HorizontalAlignment.Left };
+                }
+                messeges.Add(messege);
+            }
+
+            foreach (var item in messeges)
+            {
+                MessageList.Items.Add(item);
+            }
+            scrollMessege.ScrollToEnd();
+        }
+
+        private void ContactsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ContactsList.SelectedItem != null)
+            {
+                receiveClients[ContactsList.SelectedIndex].BeginReceive(ReceiveCallback, receiveClients[ContactsList.SelectedIndex]);
+                FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
+                MessageBox.Visibility = Visibility.Visible;
+                SendButton.Visibility = Visibility.Visible;
+                ChatLabel.Content = (ContactsList.SelectedItem as User).Name;
+            }
         }
 
         private void ReceiveCallback(IAsyncResult ar)
@@ -104,8 +167,12 @@ namespace UDPChat
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                Messeges.Add(new Messege() { Text = Encoding.ASCII.GetString(buffer), Alignment = HorizontalAlignment.Right, Time = DateTime.Now });
-                MessageList.Items.Add(Messeges.Last());
+                context.Set<Messeges>().Add(new Messeges { Text = Encoding.ASCII.GetString(buffer), Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == ep.Address.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id });
+                context.SaveChanges();
+
+                FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
+                FillContactsList();
+
                 scrollMessege.ScrollToEnd();
             });
         }
@@ -114,11 +181,18 @@ namespace UDPChat
         {
             if (MessageBox.Text != String.Empty)
             {
-                byte[] buffer = Encoding.ASCII.GetBytes($"{MessageBox.Text}");
+                byte[] buffer = Encoding.ASCII.GetBytes(MessageBox.Text);
                 IPAddress ip = IPAddress.Parse((ContactsList.SelectedItem as User).Address.ToString().Substring(0, (ContactsList.SelectedItem as User).Address.ToString().LastIndexOf('.') + 1) + "255");
                 IPEndPoint ep = new IPEndPoint(ip, 1024);
                 udpClient.Send(buffer, buffer.Length, ep);
+
+                context.Set<Messeges>().Add(new Messeges { Text = MessageBox.Text, Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == (ContactsList.SelectedItem as User).Address.ToString()).Id });
+                context.SaveChanges();
+
                 MessageBox.Clear();
+
+                FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
+                FillContactsList();
             }
         }
 
@@ -143,6 +217,7 @@ namespace UDPChat
             if (e.Key == Key.Escape)
             {
                 MessageList.Items.Clear();
+                ChatLabel.Content = "";
                 MessageBox.Visibility = Visibility.Hidden;
                 SendButton.Visibility = Visibility.Hidden;
             }
