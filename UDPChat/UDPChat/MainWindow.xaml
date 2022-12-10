@@ -35,7 +35,7 @@
             </Style.Setters>
         </Style>
 
-        
+
         <Style x:Key="MessegeList">
             <Style.Setters>
                 <Setter Property="ListBox.BorderThickness" Value="0"/>
@@ -91,10 +91,11 @@
                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="Black" BorderThickness="1" Visibility="Visible"/>
                 <Border Grid.Row="0" Grid.Column="0" Background="#FF212737" BorderBrush="Black" BorderThickness="1"/>
                 <Border x:Name="MessegeBorder" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#FF636A7B" BorderBrush="Black" BorderThickness="1"/>
-                <Label Grid.Row="0" Grid.Column="0" Content="Chats" Foreground="WhiteSmoke" FontSize="24" />
+                
+                <Label Grid.Row="0" Grid.Column="0" Content="Chats" Foreground="White" FontSize="24" />
                 <Label Name="ChatLabel" Grid.Row="0" Grid.Column="2" Foreground="WhiteSmoke" FontSize="24" />
 
-                <Border Grid.Column="0" Grid.Row="1">
+                <Border Grid.Column="0" Grid.Row="1" Grid.RowSpan="2">
                     <ListBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="True"  
    					 Style="{StaticResource ContactList}" x:Name="ContactsList" SelectionChanged="ContactsList_SelectionChanged" BorderBrush="Black" BorderThickness="1">
                         <ListBox.ItemTemplate>
@@ -143,17 +144,31 @@
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Name="MessageBox" Grid.Column="0" Grid.Row="2" FontSize="24"/>
+                        <TextBox Name="MessageBox" Grid.Column="0" Grid.Row="2" FontSize="24" Visibility="Hidden"/>
 
-                        <Button Background="#FF404658" Grid.Column="1" Name="SendButton" Content="→" Click="SendButton_Click"/>
+                        <Button Background="#FF404658" Grid.Column="1" Name="SendButton" Content="→" Click="SendButton_Click" Visibility="Hidden"/>
 
                     </Grid>
                 </Border>
+
+                <Button Grid.Column="1" Grid.Row="0" Content="Options" HorizontalAlignment="Right" VerticalAlignment="Center" Height="50" Width="50" Click="Button_Options" Background="#FF404658"/>
+
+                <Border Name="Options" Style="{StaticResource Screen}" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Width="0" Visibility="Visible" BorderBrush="Black" BorderThickness="1">
+                    <StackPanel Orientation="Vertical">
+                        <Label Content="Options" Height="50" Margin="10,5,5,5" FontSize="24" Foreground="WhiteSmoke"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Username" Margin="5" FontSize="18" Foreground="WhiteSmoke"/>
+                            <TextBox Name="TBUsername" Height="30" Width="180" Margin="10,5,5,5" FontSize="16" Text="Unknown"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Port" Margin="5" FontSize="18" Foreground="WhiteSmoke"/>
+                            <TextBox Name="TBPort" Height="30" Width="180" Margin="60,5,5,5" FontSize="16" Text="1024"/>
+                        </StackPanel>
+                        
+                    </StackPanel>
+                </Border>
+                <Button Name="SaveButton" Grid.Column="0" Grid.Row="2" Content="Save" Width="0" HorizontalAlignment="Left" Click="Button_Save" Background="#FF404658"/>
             </Grid>
-        </Border>
-
-        <Border Style="{StaticResource Screen}">
-
         </Border>
     </Grid>
 

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -18,7 +19,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static UDPChat.MainWindow;
+using Color = System.Windows.Media.Color;
 
 namespace UDPChat
 {
@@ -42,6 +43,18 @@ namespace UDPChat
         {
             InitializeComponent();
             context.Database.EnsureCreated();
+            Start();
+        }
+
+        private void Start()
+        {
+            foreach (var item in receiveClients)
+            {
+                item.Close();
+            }
+            availableIp.Clear();
+            receiveClients.Clear();
+            TBUsername.Text = context.Set<Users>().First(x => x.Address == myip.ToString()).Name;
 
             IPAddress[] iPAddresses = Dns.GetHostAddresses(Dns.GetHostName());
             foreach (IPAddress ip4 in iPAddresses.Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
@@ -51,21 +64,18 @@ namespace UDPChat
                     context.Set<Users>().Add(new Users { Address = ip4.ToString(), Name = "unknown" });
                 }
                 availableIp.Add(ip4);
-                receiveClients.Add(new UdpClient(new IPEndPoint(ip4, 1024)));
+                receiveClients.Add(new UdpClient(new IPEndPoint(ip4, Int32.Parse(TBPort.Text))));
             }
             if (context.Set<Users>().FirstOrDefault(x => x.Address == "127.0.0.1") == null)
             {
                 context.Set<Users>().Add(new Users { Address = "127.0.0.1", Name = "telnet" });
             }
-            
+
             context.SaveChanges();
 
             availableIp.Add(IPAddress.Parse("127.0.0.1"));
-            receiveClients.Add(new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1024)));
+            receiveClients.Add(new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), Int32.Parse(TBPort.Text))));
             FillContactsList();
-            
-            MessageBox.Visibility = Visibility.Hidden;
-            SendButton.Visibility = Visibility.Hidden;
         }
 
         private static AppDbContext CreateDbContext()
@@ -109,13 +119,11 @@ namespace UDPChat
                 }
             }
 
-            //if (ContactsList.Items.Count != availableIp.Count)
-            //{
-                foreach (var item in users)
-                {
-                    ContactsList.Items.Add(item);
-                }
-            //}
+            foreach (var item in users)
+            {
+                ContactsList.Items.Add(item);
+            }
+
             ContactsList.SelectedIndex = ind;
         }
         public void FillMessageList(string chatterIp)
@@ -182,7 +190,7 @@ namespace UDPChat
             {
                 byte[] buffer = Encoding.ASCII.GetBytes(MessageBox.Text);
                 IPAddress ip = IPAddress.Parse((ContactsList.SelectedItem as User).Address.ToString().Substring(0, (ContactsList.SelectedItem as User).Address.ToString().LastIndexOf('.') + 1) + "255");
-                IPEndPoint ep = new IPEndPoint(ip, 1024);
+                IPEndPoint ep = new IPEndPoint(ip, Int32.Parse(TBPort.Text));
                 udpClient.Send(buffer, buffer.Length, ep);
 
                 context.Set<Messeges>().Add(new Messeges { Text = MessageBox.Text, Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == (ContactsList.SelectedItem as User).Address.ToString()).Id });
@@ -220,6 +228,33 @@ namespace UDPChat
                 MessageBox.Visibility = Visibility.Hidden;
                 SendButton.Visibility = Visibility.Hidden;
             }
+        }
+
+        private void Button_Options(object sender, RoutedEventArgs e)
+        {
+            DoubleAnimation da = new DoubleAnimation
+            {
+                Duration = TimeSpan.FromMilliseconds(500),
+                FillBehavior = FillBehavior.HoldEnd
+            };
+            if (Options.Width > 0)
+            {
+                da.To = 0;
+            }
+            else
+            {
+                da.From = 0;
+                da.To = 300;
+            }
+            SaveButton.BeginAnimation(Button.WidthProperty, da);
+            Options.BeginAnimation(Border.WidthProperty, da);
+            e.Handled = true;
+        }
+
+        private void Button_Save(object sender, RoutedEventArgs e)
+        {
+            context.Set<Users>().First(x => x.Address == myip.ToString()).Name = TBUsername.Text;
+            Start();
         }
     }
 }
