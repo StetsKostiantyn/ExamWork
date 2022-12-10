@@ -76,7 +76,7 @@
     </Window.Resources>
 
     <Grid>
-        <Border Name="ContactsScreen" Style="{StaticResource Screen}" Visibility="Visible">
+        <Border Name="Screen" Style="{StaticResource Screen}" Visibility="Visible">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50" />
@@ -88,8 +88,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!--<Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="Black" BorderThickness="1" Visibility="Visible"/>
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="Black" BorderThickness="1" Visibility="Visible"/>-->
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Screen}" BorderBrush="Black" BorderThickness="1" Visibility="Visible"/>
                 <Border Grid.Row="0" Grid.Column="0" Background="#FF212737" BorderBrush="Black" BorderThickness="1"/>
                 <Border x:Name="MessegeBorder" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#FF636A7B" BorderBrush="Black" BorderThickness="1"/>
                 <Label Grid.Row="0" Grid.Column="0" Content="Chats" Foreground="WhiteSmoke" FontSize="24" />
@@ -152,6 +151,10 @@
                 </Border>
             </Grid>
         </Border>
+
+        <Border Style="{StaticResource Screen}">
+
+        </Border>
     </Grid>
-        
+
 </Window>

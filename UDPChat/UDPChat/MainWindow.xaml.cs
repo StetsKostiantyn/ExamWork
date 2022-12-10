@@ -41,7 +41,6 @@ namespace UDPChat
         public MainWindow()
         {
             InitializeComponent();
-
             context.Database.EnsureCreated();
 
             IPAddress[] iPAddresses = Dns.GetHostAddresses(Dns.GetHostName());
@@ -90,6 +89,9 @@ namespace UDPChat
 
         public void FillContactsList()
         {
+            int ind = ContactsList.SelectedIndex;
+            ContactsList.Items.Clear();
+            users.Clear();
             foreach (var item in context.Set<Users>())
             {
                 if (availableIp.Contains(IPAddress.Parse(item.Address)))
@@ -103,21 +105,18 @@ namespace UDPChat
                     {
                         user = new User { Address = IPAddress.Parse(item.Address), Name = item.Name, Time = item.Time, Text = "" };
                     }
-                    if (users.Count != availableIp.Count)
-                    {
-                        users.Add(user);
-                    }
+                    users.Add(user);
                 }
             }
-            //ContactsList.Items.Clear();
 
-            if (ContactsList.Items.Count != availableIp.Count)
-            {
+            //if (ContactsList.Items.Count != availableIp.Count)
+            //{
                 foreach (var item in users)
                 {
                     ContactsList.Items.Add(item);
                 }
-            }
+            //}
+            ContactsList.SelectedIndex = ind;
         }
         public void FillMessageList(string chatterIp)
         {
