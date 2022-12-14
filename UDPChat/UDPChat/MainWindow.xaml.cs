@@ -157,7 +157,7 @@ namespace UDPChat
             {
                 receiveClients[ContactsList.SelectedIndex].BeginReceive(ReceiveCallback, receiveClients[ContactsList.SelectedIndex]);
                 FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
-                MessageBox.Visibility = Visibility.Visible;
+                MessageBoxTB.Visibility = Visibility.Visible;
                 SendButton.Visibility = Visibility.Visible;
                 ChatLabel.Content = (ContactsList.SelectedItem as User).Name;
             }
@@ -165,38 +165,49 @@ namespace UDPChat
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            UdpClient client = ar.AsyncState as UdpClient;
-            IPEndPoint ep = new IPEndPoint(0, 0);
-
-            byte[] buffer = client.EndReceive(ar, ref ep);
-
-            client.BeginReceive(ReceiveCallback, client);
-
-            Application.Current.Dispatcher.Invoke(() =>
+            try
             {
-                context.Set<Messeges>().Add(new Messeges { Text = Encoding.ASCII.GetString(buffer), Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == ep.Address.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id });
-                context.SaveChanges();
+                UdpClient client = ar.AsyncState as UdpClient;
+                IPEndPoint ep = new IPEndPoint(0, 0);
 
-                FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
-                FillContactsList();
+                byte[] buffer = client.EndReceive(ar, ref ep);
 
-                scrollMessege.ScrollToEnd();
-            });
+                client.BeginReceive(ReceiveCallback, client);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    context.Set<Messeges>().Add(new Messeges { Text = Encoding.ASCII.GetString(buffer), Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == ep.Address.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id });
+                    context.SaveChanges();
+
+                    FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
+                    FillContactsList();
+
+                    scrollMessege.ScrollToEnd();
+                });
+            } 
+            catch(Exception)
+            {
+                MessageBox.Show("Port closed!");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    TBPort.Text = "1024";
+                });
+            }
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Text != String.Empty)
+            if (MessageBoxTB.Text != String.Empty)
             {
-                byte[] buffer = Encoding.ASCII.GetBytes(MessageBox.Text);
+                byte[] buffer = Encoding.ASCII.GetBytes(MessageBoxTB.Text);
                 IPAddress ip = IPAddress.Parse((ContactsList.SelectedItem as User).Address.ToString().Substring(0, (ContactsList.SelectedItem as User).Address.ToString().LastIndexOf('.') + 1) + "255");
                 IPEndPoint ep = new IPEndPoint(ip, Int32.Parse(TBPort.Text));
                 udpClient.Send(buffer, buffer.Length, ep);
 
-                context.Set<Messeges>().Add(new Messeges { Text = MessageBox.Text, Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == (ContactsList.SelectedItem as User).Address.ToString()).Id });
+                context.Set<Messeges>().Add(new Messeges { Text = MessageBoxTB.Text, Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == (ContactsList.SelectedItem as User).Address.ToString()).Id });
                 context.SaveChanges();
 
-                MessageBox.Clear();
+                MessageBoxTB.Clear();
 
                 FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
                 FillContactsList();
@@ -225,7 +236,7 @@ namespace UDPChat
             {
                 MessageList.Items.Clear();
                 ChatLabel.Content = "";
-                MessageBox.Visibility = Visibility.Hidden;
+                MessageBoxTB.Visibility = Visibility.Hidden;
                 SendButton.Visibility = Visibility.Hidden;
             }
         }

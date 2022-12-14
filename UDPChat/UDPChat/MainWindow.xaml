@@ -144,7 +144,7 @@
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Name="MessageBox" Grid.Column="0" Grid.Row="2" FontSize="24" Visibility="Hidden"/>
+                        <TextBox Name="MessageBoxTB" Grid.Column="0" Grid.Row="2" FontSize="24" Visibility="Hidden"/>
 
                         <Button Background="#FF404658" Grid.Column="1" Name="SendButton" Content="→" Click="SendButton_Click" Visibility="Hidden"/>
 
