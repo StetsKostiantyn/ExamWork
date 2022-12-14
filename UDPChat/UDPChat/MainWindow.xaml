@@ -100,7 +100,7 @@
    					 Style="{StaticResource ContactList}" x:Name="ContactsList" SelectionChanged="ContactsList_SelectionChanged" BorderBrush="Black" BorderThickness="1">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <ListBoxItem>
+                                <WrapPanel>
                                     <DockPanel HorizontalAlignment="Left" LastChildFill="True" Width="250">
                                         <Border Width="50" Height="50" BorderBrush="Black" BorderThickness="1" Margin="5">
                                             <Image Source=".."/>
@@ -108,7 +108,7 @@
                                         <TextBlock Text="{Binding TextString}"/>
                                         <TextBlock HorizontalAlignment="Right" Text="{Binding TimeString}"/>
                                     </DockPanel>
-                                </ListBoxItem>
+                                </WrapPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -162,7 +162,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Port" Margin="5" FontSize="18" Foreground="WhiteSmoke"/>
-                            <TextBox Name="TBPort" Height="30" Width="180" Margin="60,5,5,5" FontSize="16" Text="1024"/>
+                            <TextBox Name="TBPort" Height="30" Width="180" Margin="60,5,5,5" FontSize="16" Text="1024" IsEnabled="False"/>
                         </StackPanel>
                         
                     </StackPanel>

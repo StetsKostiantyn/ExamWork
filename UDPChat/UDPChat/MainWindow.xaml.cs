@@ -64,7 +64,9 @@ namespace UDPChat
                     context.Set<Users>().Add(new Users { Address = ip4.ToString(), Name = "unknown" });
                 }
                 availableIp.Add(ip4);
+
                 receiveClients.Add(new UdpClient(new IPEndPoint(ip4, Int32.Parse(TBPort.Text))));
+                receiveClients.Last().BeginReceive(ReceiveCallback, receiveClients.Last());
             }
             if (context.Set<Users>().FirstOrDefault(x => x.Address == "127.0.0.1") == null)
             {
@@ -165,34 +167,23 @@ namespace UDPChat
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            try
+            UdpClient client = ar.AsyncState as UdpClient;
+            IPEndPoint ep = new IPEndPoint(0, 0);
+
+            byte[] buffer = client.EndReceive(ar, ref ep);
+
+            client.BeginReceive(ReceiveCallback, client);
+
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                UdpClient client = ar.AsyncState as UdpClient;
-                IPEndPoint ep = new IPEndPoint(0, 0);
+                context.Set<Messeges>().Add(new Messeges { Text = Encoding.ASCII.GetString(buffer), Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == ep.Address.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id });
+                context.SaveChanges();
 
-                byte[] buffer = client.EndReceive(ar, ref ep);
+                FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
+                FillContactsList();
 
-                client.BeginReceive(ReceiveCallback, client);
-
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    context.Set<Messeges>().Add(new Messeges { Text = Encoding.ASCII.GetString(buffer), Time = DateTime.Now, SenderId = context.Set<Users>().FirstOrDefault(x => x.Address == ep.Address.ToString()).Id, ReceiverId = context.Set<Users>().FirstOrDefault(x => x.Address == myip.ToString()).Id });
-                    context.SaveChanges();
-
-                    FillMessageList((ContactsList.SelectedItem as User).Address.ToString());
-                    FillContactsList();
-
-                    scrollMessege.ScrollToEnd();
-                });
-            } 
-            catch(Exception)
-            {
-                MessageBox.Show("Port closed!");
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    TBPort.Text = "1024";
-                });
-            }
+                scrollMessege.ScrollToEnd();
+            });
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
